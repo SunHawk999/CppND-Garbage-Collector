@@ -5,29 +5,34 @@ template <class T>
 class PtrDetails
 {
   public:
-    unsigned refcount; // current reference count
-    T *memPtr;         // pointer to allocated memory
+    unsigned refcount; // attribute for current reference count
+    T *memPtr;         // attribute pointer to allocated memory, generic pointer
+                       // for storage of basic info about memory
+
     /* isArray is true if memPtr points
 to an allocated array. It is false
 otherwise. */
     bool isArray; // true if pointing to array
     /* If memPtr is pointing to an allocated
 array, then arraySize contains its size */
+    
     unsigned arraySize; // size of array
     // Here, mPtr points to the allocated memory.
     // If this is an array, then size specifies
     // the size of the array.
 
-    PtrDetails(void)
+    PtrDetails(void* ptr, unsigned memSize)
     {
-        // TODO: Implement PtrDetails
+        if(memSize > 0)
+            isArray = true;
     }
 };
-// Overloading operator== allows two class objects to be compared.
+// Overloading operator == allows two class objects to be compared.
 // This is needed by the STL list class.
 template <class T>
 bool operator==(const PtrDetails<T> &ob1,
                 const PtrDetails<T> &ob2)
-{
-    // TODO: Implement operator==
+{ 
+    return (ob1.memPtr == ob2.memPtr);
 }
+
