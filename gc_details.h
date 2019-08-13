@@ -21,10 +21,16 @@ array, then arraySize contains its size */
     // If this is an array, then size specifies
     // the size of the array.
 
-    PtrDetails(void* ptr, unsigned memSize)
+    PtrDetails(T* ptr, unsigned memSize = 0)
     {
+        refcount = 1;
+        ptr = memPtr;
         if(memSize > 0)
             isArray = true;
+        else
+            isArray = false;
+        
+        arraySize = memSize;
     }
 };
 // Overloading operator == allows two class objects to be compared.
