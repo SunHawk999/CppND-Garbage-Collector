@@ -218,9 +218,21 @@ template <class T, int size> T *Pointer<T, size>::operator=(T *t){
 }
 // Overload assignment of Pointer to Pointer.
 template <class T, int size> Pointer<T, size> &Pointer<T, size>::operator=(Pointer &rv){
+    typename std::list<PtrDetails<T>>::iterator p;
+    
+    //Decrement the refcount of the memory currently being pointed to
+    p = findPtrInfo(addr);
+    p->refcount--;
 
-    // TODO: Implement operator==
-    // LAB: Smart Pointer Project Lab
+    //Then find the refcount of the new address and increment it
+    p = findPtrInfo(rv.addr);
+    p->refcount++;
+
+    //Store the address
+    addr = rv.addr;
+
+    //return it
+    return rv;
 
 }
 
