@@ -138,8 +138,9 @@ template <class T, int size> Pointer<T, size>::~Pointer(){
 // Collect garbage. Returns true if at least
 // one object was freed.
 template <class T, int size> bool Pointer<T, size>::collect(){
-   // TODO: Implement collect function
+
     bool memfreed = false;
+
     typename std::list<PtrDetails<T>>::iterator p;
 
     do{
@@ -147,17 +148,29 @@ template <class T, int size> bool Pointer<T, size>::collect(){
         for (p = refContainer.begin(); p != refContainer.end(); p++){
             // Note: collect() will be called in the destructor
             //If in use, skip,
+            if(p->refcount > 0) continue;
+
+            memfreed = true;
 
             //Remove unused entry from refContainer
-
+            refContainer.remove(*p);
             //Free memeory unless the Pointer is null
-
+            if(p->memPtr){
+                if(p->isArray)
+                    //Delete the array
+                    delete[] p->memPtr;
+                
+                else
+                    //Delete single element
+                    delete p->memptr;
+            }
             //restart the search
             break;
         }
+        
     } while(p != refContainer.end());
+    
     return memfreed;
-    // LAB: New and Delete Project Lab
 }
 
 // Overload assignment of pointer to Pointer.
@@ -177,14 +190,14 @@ template <class T, int size> T *Pointer<T, size>::operator=(T *t){
     //increment its count. Else create a new entry for iterator
     
     p = findPtrInfo(t);
-    if(p != iterator.end())
+    if(p != refContainer.end())
         //increment refcount
         p->refcount++;
     
     else{
         //Store the address
        PtrDetails<T> ptrObj(t, size);
-       iterator.push_front(ptrObj);
+       refContainer.push_front(ptrObj);
     }
 
     //Store and return t
