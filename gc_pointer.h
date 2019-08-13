@@ -12,14 +12,14 @@
     When used to refer to an allocated array,
     specify the array size.
 */
-template <class T, int size = 0>
-class Pointer{
+template <class T, int size = 0> class Pointer{
 private:
     // refContainer maintains the garbage collection list.
     static std::list<PtrDetails<T> > refContainer;
     // addr points to the allocated memory to which
     // this Pointer pointer currently points.
     T *addr;
+   
     /*  isArray is true if this Pointer points
         to an allocated array. It is false
         otherwise. 
@@ -32,9 +32,10 @@ private:
     static bool first; // true when first Pointer is created
     // Return an iterator to pointer details in refContainer.
     typename std::list<PtrDetails<T> >::iterator findPtrInfo(T *ptr);
+
 public:
     // Define an iterator type for Pointer<T>.
-    typedef Iter<T> GCiterator;
+    typedef Iter<T> iterator;
     // Empty constructor
     // NOTE: templates aren't able to have prototypes with default arguments
     // this is why constructor is designed like this:
@@ -93,14 +94,12 @@ public:
 
 // STATIC INITIALIZATION
 // Creates storage for the static variables
-template <class T, int size>
-std::list<PtrDetails<T> > Pointer<T, size>::refContainer;
-template <class T, int size>
-bool Pointer<T, size>::first = true;
+template <class T, int size> std::list<PtrDetails<T> > Pointer<T, size>::refContainer;
+
+template <class T, int size> bool Pointer<T, size>::first = true;
 
 // Constructor for both initialized and uninitialized objects. -> see class interface
-template<class T,int size>
-Pointer<T,size>::Pointer(T *t){
+template<class T,int size> Pointer<T,size>::Pointer(T *t){
     // Register shutdown() as an exit function.
     if (first)
         atexit(shutdown);
@@ -111,27 +110,26 @@ Pointer<T,size>::Pointer(T *t){
 }
 
 // Copy constructor.
-template< class T, int size>
-Pointer<T,size>::Pointer(const Pointer &ob){
+template< class T, int size> Pointer<T,size>::Pointer(const Pointer &ob){
 
     typename std::list<PtrDetails<T>>::iterator p;
     p = findPtrInfo(ob.addr);
     
     //increment ref counter
-    ++p->refcount;
+    p->refcount++;
     
+    addr = ob.addr;
+    arraySize = ob.arraySize;
+
     //Decide if it is an array
-    if(typeid(ob.addr).name() != "array")
-        p->isArray = false;
-    else
+    if(arraySize > 0)
         p->isArray = true;
-    
-    
+    else
+        p->isArray = false;
 }
 
 // Destructor for Pointer.
-template <class T, int size>
-Pointer<T, size>::~Pointer(){
+template <class T, int size> Pointer<T, size>::~Pointer(){
     
     // TODO: Implement Pointer destructor
     // Lab: New and Delete Project Lab
@@ -139,26 +137,63 @@ Pointer<T, size>::~Pointer(){
 
 // Collect garbage. Returns true if at least
 // one object was freed.
-template <class T, int size>
-bool Pointer<T, size>::collect(){
+template <class T, int size> bool Pointer<T, size>::collect(){
+   // TODO: Implement collect function
+    bool memfreed = false;
+    typename std::list<PtrDetails<T>>::iterator p;
 
-    // TODO: Implement collect function
+    do{
+        //Scan refContainer looking for unreferenced pointers
+        for (p = refContainer.begin(); p != refContainer.end(); p++){
+            // Note: collect() will be called in the destructor
+            //If in use, skip,
+
+            //Remove unused entry from refContainer
+
+            //Free memeory unless the Pointer is null
+
+            //restart the search
+            break;
+        }
+    } while(p != refContainer.end());
+    return memfreed;
     // LAB: New and Delete Project Lab
-    // Note: collect() will be called in the destructor
-    return false;
 }
 
 // Overload assignment of pointer to Pointer.
-template <class T, int size>
-T *Pointer<T, size>::operator=(T *t){
+template <class T, int size> T *Pointer<T, size>::operator=(T *t){
 
-    // TODO: Implement operator==
-    // LAB: Smart Pointer Project Lab
+    typename std::list<PtrDetails<T>>::iterator p;
 
+    //Check if it is already in the refcontainer
+
+    p = findPtrInfo(addr);
+    //First decrement refcount for the mem currently being pointed to
+    p->refcount--;
+
+    //Then increment the reference count of the new address
+
+    //If address is already made in the system,
+    //increment its count. Else create a new entry for iterator
+    
+    p = findPtrInfo(t);
+    if(p != iterator.end())
+        //increment refcount
+        p->refcount++;
+    
+    else{
+        //Store the address
+       PtrDetails<T> ptrObj(t, size);
+       iterator.push_front(ptrObj);
+    }
+
+    //Store and return t
+    addr = t;
+    return t;
+    
 }
 // Overload assignment of Pointer to Pointer.
-template <class T, int size>
-Pointer<T, size> &Pointer<T, size>::operator=(Pointer &rv){
+template <class T, int size> Pointer<T, size> &Pointer<T, size>::operator=(Pointer &rv){
 
     // TODO: Implement operator==
     // LAB: Smart Pointer Project Lab
@@ -166,8 +201,7 @@ Pointer<T, size> &Pointer<T, size>::operator=(Pointer &rv){
 }
 
 // A utility function that displays refContainer.
-template <class T, int size>
-void Pointer<T, size>::showlist(){
+template <class T, int size> void Pointer<T, size>::showlist(){
     typename std::list<PtrDetails<T> >::iterator p;
     std::cout << "refContainer<" << typeid(T).name() << ", " << size << ">:\n";
     std::cout << "memPtr refcount value\n ";
@@ -188,8 +222,7 @@ void Pointer<T, size>::showlist(){
     std::cout << std::endl;
 }
 // Find a pointer in refContainer.
-template <class T, int size>
-typename std::list<PtrDetails<T> >::iterator
+template <class T, int size> typename std::list<PtrDetails<T> >::iterator 
 Pointer<T, size>::findPtrInfo(T *ptr){
     typename std::list<PtrDetails<T> >::iterator p;
     // Find ptr in refContainer.
@@ -199,8 +232,7 @@ Pointer<T, size>::findPtrInfo(T *ptr){
     return p;
 }
 // Clear refContainer when program exits.
-template <class T, int size>
-void Pointer<T, size>::shutdown(){
+template <class T, int size> void Pointer<T, size>::shutdown(){
     if (refContainerSize() == 0)
         return; // list is empty
     typename std::list<PtrDetails<T> >::iterator p;
