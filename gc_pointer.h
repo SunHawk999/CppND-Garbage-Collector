@@ -130,9 +130,20 @@ template< class T, int size> Pointer<T,size>::Pointer(const Pointer &ob){
 
 // Destructor for Pointer.
 template <class T, int size> Pointer<T, size>::~Pointer(){
-    
+    typename std::list<PtrDetails<T>>::iterator p;
+    p = findPtrInfo(addr);
     // TODO: Implement Pointer destructor
-    // Lab: New and Delete Project Lab
+    //Decrement refcount
+    if(p->refCount)
+        p->refCount--;
+    
+    //Collect garbage when the pointer goes out of scope
+    collect();
+
+    /*For real use, you might want to collect unused memory less frequently,
+    such as after refCountainer has reached a certain size, 
+    after a certain number of Pointers have gone out of scope, 
+    or when memory is low */  
 }
 
 // Collect garbage. Returns true if at least
