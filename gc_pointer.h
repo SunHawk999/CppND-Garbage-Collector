@@ -105,8 +105,20 @@ template<class T,int size> Pointer<T,size>::Pointer(T *t){
         atexit(shutdown);
     first = false;
 
-    // TODO: Implement Pointer constructor
-    // Lab: Smart Pointer Project Lab
+    typename std::list<PtrDetails<T>>::iterator p;
+    p = findPtrInfo(t);
+
+    /*If t is already in the reference list, then increment 
+    its reference count. Otherwise create and 
+    add it to the reference list */
+
+    if(p != refContainer.end()){
+        p->refcount++;
+    }
+    else{
+        PtrDetails<T> PtrDetails(t);
+        refContainer.push_front(PtrDetails);
+    }
 }
 
 // Copy constructor.
