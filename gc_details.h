@@ -23,7 +23,7 @@ array, then arraySize contains its size */
     PtrDetails(T* ptr, unsigned memSize = 0)
     {
         refcount = 1;
-        ptr = memPtr;
+        memPtr = ptr;
         if(memSize > 0)
             isArray = true;
         else

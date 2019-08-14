@@ -153,8 +153,8 @@ template <class T, int size> Pointer<T, size>::~Pointer(){
     p = findPtrInfo(addr);
     // TODO: Implement Pointer destructor
     //Decrement refcount
-    if(p->refCount)
-        p->refCount--;
+    if(p->refcount)
+        p->refcount--;
     
     //Collect garbage when the pointer goes out of scope
     collect();
@@ -192,7 +192,7 @@ template <class T, int size> bool Pointer<T, size>::collect(){
                 
                 else
                     //Delete single element
-                    delete p->memptr;
+                    delete p->memPtr;
             }
             //restart the search
             break;
