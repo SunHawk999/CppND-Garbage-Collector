@@ -119,6 +119,13 @@ template<class T,int size> Pointer<T,size>::Pointer(T *t){
         PtrDetails<T> PtrDetails(t);
         refContainer.push_front(PtrDetails);
     }
+
+    addr = t;
+    arraySize = size;
+    if(size > 0)
+        isArray = true;
+    else
+        isArray = false;    
 }
 
 // Copy constructor.
