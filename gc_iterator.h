@@ -15,8 +15,7 @@ class OutOfRangeExc
 // some object does not prevent that object
 // from being recycled.
 //
-template <class T>
-class Iter
+template <class T> class Iter
 {
     T *ptr;
     // current pointer value
